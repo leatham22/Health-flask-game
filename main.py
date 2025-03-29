@@ -28,6 +28,9 @@ class Player:
         print("Health Flask used to increase Max HP. Max HP increased by {}".format(flask_add_max_hp))
         self.max_hp += flask_add_max_hp
         self.flasks -= 1
+    
+    def do_nothing(self):
+        print("You have chosen to do nothing this turn")
 
     def lose_hp(self):
         """
@@ -66,10 +69,51 @@ class Player:
         print("You picked up a flask of a fallen comrade, flasks increased by 1. ")  
         self.flasks += 1
 
-actions_to_player = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Flask", "Lose Flask", "Lose Flask", "Lose Flask", "Nothing Happens", "Gain Flask"]   
+actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Flask", "Lose Flask", "Lose Flask", "Lose Flask", "Nothing Happens", "Gain Flask"]   
 
+def action_by_player(input, instance):
+    if input == 1:
+        instance.use_flask_hp()
+    elif input == 2:
+        instance.use_flask_max_hp()
+    elif input == 3:
+        instance.do_nothing()
 
+def action_to_player(action, instance):
+    if action == "Lose HP":
+        instance.lose_hp()
+    elif action == "Lose Max HP":
+        instance.lose_max_hp() 
+    elif action == "Lose Flask":
+        instance.lose_flask() 
+    elif action == "Nothing Happens":
+        instance.nothing_happens() 
+    elif action == "Gain Flask":
+        instance.gain_flask() 
 
+player_name = str(input("Please Type in the name of your character: "))
+player = Player(player_name)
+print("\n Welcome to the game, try and survive for as long as possible without your HP going below zero \n")
 
+while player.current_hp > 0:
+    print(player)
+    print("What Would You Like To Do: ")
+    print("Use Health Flask to Recover HP?        | enter 1 ")
+    print("Use Health Flask to Increase Max HP?   | enter 2 ")
+    print("Do nothing ?                           | enter 3 ")
+    while True: 
+        chosen_action = int(input("\n What would you like to choose? : "))
+        if not type(chosen_action) == int: 
+            print("Please choose an integar")
+        if chosen_action not in range(1,4):
+            print("Please choose an integar between 1-3")
+        break
+    action_by_player(chosen_action, player)
+    if chosen_action in [1,2]:
+        print(player)
+    action_on_player = random.choice(actions_to_player_options)
+    action_to_player(action_on_player, player)
+    print(player)
+    player._turn_counter += 1
 
-
+print("Congratulations, you have survived {} turns".format(player._turn_counter))
