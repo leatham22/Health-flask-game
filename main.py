@@ -72,6 +72,19 @@ class Player:
         print("You picked up a flask of a fallen comrade, flasks increased by 1. ")  
         self.flasks += 1
 
+def print_actions():
+        print("\nWhat Would You Like To Do: ")
+        print("Use Health Flask to Recover HP?        | enter 1 ")
+        print("Use Health Flask to Increase Max HP?   | enter 2 ")
+        print("Do nothing ?                           | enter 3 ")
+
+def choose_random_action_on_player(instance):
+    if instance.flasks < 1: 
+        action= random.choice(zero_flask_actions_to_player_options)
+    else: 
+        action = random.choice(actions_to_player_options)
+    return action
+
 actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Flask", "Lose Flask", "Lose Flask", "Lose Flask", "Nothing Happens", "Gain Flask"]   
 zero_flask_actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Nothing Happens", "Gain Flask"]   
 
@@ -105,25 +118,21 @@ while player.current_hp > 0:
         print("\nRun out of flasks..! Only option is to do nothing....")
         chosen_action = 3
     else: 
-        print("\nWhat Would You Like To Do: ")
-        print("Use Health Flask to Recover HP?        | enter 1 ")
-        print("Use Health Flask to Increase Max HP?   | enter 2 ")
-        print("Do nothing ?                           | enter 3 ")
+        print_actions()
         while True: 
             chosen_action = input("\nWhat would you like to choose? : ")
-            if not type(chosen_action) == int: 
+            if not chosen_action.isdigit(): 
                 print("Please choose an integar")
+                continue
+            chosen_action= int(chosen_action)
             if chosen_action not in range(1,4):
                 print("Please choose an integar between 1-3")
+                continue
             break
-        chosen_action= int(chosen_action)
     action_by_player(chosen_action, player)
     if chosen_action in [1,2]:
         print(player)
-    if player.flasks < 1: 
-        action_on_player = random.choice(zero_flask_actions_to_player_options)
-    else: 
-        action_on_player = random.choice(actions_to_player_options)
+    action_on_player = choose_random_action_on_player(player)
     action_to_player(action_on_player, player)
     player._turn_counter += 1
 
