@@ -9,7 +9,7 @@ class Player:
         self.flasks = 3
 
     def __str__(self):
-        return "{} | Number of flasks: {} | Starting HP: {} | Max HP: {} ".format(self.name, self.flasks, self.current_hp, self.max_hp)
+        return "Player : {} | Number of flasks: {} | Current HP: {} | Max HP: {} ".format(self.name, self.flasks, self.current_hp, self.max_hp)
     
     def use_flask_hp(self):
         """
@@ -18,6 +18,7 @@ class Player:
         flask_recover_hp = random.randint(15, 25)
         print("Health flask used to recover HP, you have recovered {} HP".format(flask_recover_hp))
         self.current_hp += flask_recover_hp
+        self.current_hp = min(self.current_hp, self.max_hp)
         self.flasks -= 1
     
     def use_flask_max_hp(self):
@@ -47,6 +48,8 @@ class Player:
         lost_max_hp = random.randint(1, 15)
         print("Oh no, you lost {} max HP".format(lost_max_hp))
         self.max_hp -= lost_max_hp
+        self.max_hp = max(self.max_hp, 1)
+        self.current_hp = min(self.current_hp, self.max_hp)
 
 
     def lose_flask(self):
@@ -56,7 +59,7 @@ class Player:
         print("You lost a flask on your jouney.")      
         self.flasks -= 1
 
-    def nothing_happens():
+    def nothing_happens(self):
         """
         ADD FUN PRINT STATEMENTS 
         """
@@ -70,6 +73,7 @@ class Player:
         self.flasks += 1
 
 actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Flask", "Lose Flask", "Lose Flask", "Lose Flask", "Nothing Happens", "Gain Flask"]   
+zero_flask_actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Nothing Happens", "Gain Flask"]   
 
 def action_by_player(input, instance):
     if input == 1:
@@ -93,27 +97,36 @@ def action_to_player(action, instance):
 
 player_name = str(input("Please Type in the name of your character: "))
 player = Player(player_name)
-print("\n Welcome to the game, try and survive for as long as possible without your HP going below zero \n")
+print("\nWelcome to the game, try and survive for as long as possible without your HP going below zero.... if you can \n")
 
 while player.current_hp > 0:
     print(player)
-    print("What Would You Like To Do: ")
-    print("Use Health Flask to Recover HP?        | enter 1 ")
-    print("Use Health Flask to Increase Max HP?   | enter 2 ")
-    print("Do nothing ?                           | enter 3 ")
-    while True: 
-        chosen_action = int(input("\n What would you like to choose? : "))
-        if not type(chosen_action) == int: 
-            print("Please choose an integar")
-        if chosen_action not in range(1,4):
-            print("Please choose an integar between 1-3")
-        break
+    if player.flasks < 1: 
+        print("\nRun out of flasks..! Only option is to do nothing....")
+        chosen_action = 3
+    else: 
+        print("\nWhat Would You Like To Do: ")
+        print("Use Health Flask to Recover HP?        | enter 1 ")
+        print("Use Health Flask to Increase Max HP?   | enter 2 ")
+        print("Do nothing ?                           | enter 3 ")
+        while True: 
+            chosen_action = input("\nWhat would you like to choose? : ")
+            if not type(chosen_action) == int: 
+                print("Please choose an integar")
+            if chosen_action not in range(1,4):
+                print("Please choose an integar between 1-3")
+            break
+        chosen_action= int(chosen_action)
     action_by_player(chosen_action, player)
     if chosen_action in [1,2]:
         print(player)
-    action_on_player = random.choice(actions_to_player_options)
+    if player.flasks < 1: 
+        action_on_player = random.choice(zero_flask_actions_to_player_options)
+    else: 
+        action_on_player = random.choice(actions_to_player_options)
     action_to_player(action_on_player, player)
-    print(player)
     player._turn_counter += 1
 
-print("Congratulations, you have survived {} turns".format(player._turn_counter))
+print("Congratulations {}, you have survived {} turns".format(player.name, player._turn_counter))
+
+
