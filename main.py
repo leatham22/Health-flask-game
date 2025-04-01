@@ -1,7 +1,7 @@
 import random
 
 class Player:
-    def __init__(self, name, max_hp=100, currency=25, current_hp=100, antidote=0):
+    def __init__(self, name, max_hp=100, currency=25, current_hp=100, antidote=0, poisoned=0):
         self.name = name 
         self.current_hp = current_hp
         self.max_hp = max_hp
@@ -9,16 +9,45 @@ class Player:
         self.flasks = 3
         self.currency = currency
         self.antidote = antidote
+        self.poisoned = poisoned
 
 
     def __str__(self):
-        return "\nPlayer : {} | Number of flasks: {} | Current HP: {} | Max HP: {} | Currency: {} ".format(self.name, self.flasks, self.current_hp, self.max_hp, self.currency)
+        return "\nPlayer : {} | Number of flasks: {} | Current HP: {} | Max HP: {} | antidote: {} | Currency: {} | Poisoned: {}".format(self.name, self.flasks, self.current_hp, self.max_hp, self.antidote, self.currency, "Yes" if self.poisoned > 0 else "No")
     
+    def apply_poison(self):
+        if self.poisoned > 0: 
+            print("Oh no, you are still poisned. Lose 10HP....")
+            self.current_hp -= 10
+            self.poisoned -= 1
+        else:
+            return
+    def get_poisoned(self):
+        if self.poisoned == 0:
+            print("Oh no you are poisoned, someone must have used a poisonous blade..\nYou will lose 10HP for the next 5 turns")
+            self.poisoned += 5
+        elif self.poisoned > 0:
+            self.poisoned += 5
+            print("These bastards. You have been poisoned again. You will lose 10HP for the next {} turns.".format(self.poisoned))
+
+    def use_antidote(self):
+        if self.antidote > 0:
+            if self.poisoned == 0:
+                print("That was a waste... You werent poisoned")
+            elif self.poisoned > 0:
+                print("EURIKA, YOU ARE CURED OF POISON")
+                self.poisoned = 0
+                self.antidote -= 1
+        elif self.antidote == 0:
+            print("You dont have any antidotes....")
+            return False
+
+
     def use_flask_hp(self):
         """
         ADD FUN PRINT STATEMENTS 
         """
-        flask_recover_hp = random.randint(15, 25)
+        flask_recover_hp = random.randint(15, 40)
         print("\nHealth flask used to recover HP, you have recovered {} HP".format(flask_recover_hp))
         self.current_hp += flask_recover_hp
         self.current_hp = min(self.current_hp, self.max_hp)
@@ -40,7 +69,7 @@ class Player:
         """
         ADD FUN PRINT STATEMENTS 
         """
-        lost_hp = random.randint(5, 25)
+        lost_hp = random.randint(10, 40)
         print("Oh no, you lost {} HP.".format(lost_hp))
         self.current_hp -= lost_hp
     
@@ -48,7 +77,7 @@ class Player:
         """
         ADD FUN PRINT STATEMENTS 
         """
-        lost_max_hp = random.randint(1, 15)
+        lost_max_hp = random.randint(5, 20)
         print("\nOh no, you lost {} max HP".format(lost_max_hp))
         self.max_hp -= lost_max_hp
         self.max_hp = max(self.max_hp, 1)
@@ -74,6 +103,19 @@ class Player:
         """      
         print("You picked up a flask of a fallen comrade, flasks increased by 1. ")  
         self.flasks += 1
+
+    def lose_currency(self):
+        if self.currency == 0:
+            print("You dropped a coin pouch. Luckily your broke so it was empty...")
+        elif self.currency > 0:
+            lost_money = random.randint(10,30)
+            if self.currency > lost_money:
+                print("\n Oh no, you dropped one of your pouches. Lose {} currency.".format(lost_money))
+                self.currency -= lost_money
+            elif lost_money > self.currency:
+                partial_lost_money = lost_money - self.currency
+                print("\n Oh no, you dropped one of your pouches. Luckily it was only half full. Lose {} currency.".format(partial_lost_money))
+                self.currency = 0
 
 class Shop:
     def __init__(self):
@@ -103,7 +145,7 @@ class Shop:
             return False
 
     def sell_item(self, item, player):
-        player_stock = player.flasks
+        player_stock = getattr(player, item)
         price = self.inventory[item]["Price"]
         if player_stock > 0:
             setattr(player, item, getattr(player, item) -1)
@@ -117,8 +159,9 @@ def print_actions():
         print("\nWhat Would You Like To Do: ")
         print("Use Health Flask to Recover HP?        | enter 1 ")
         print("Use Health Flask to Increase Max HP?   | enter 2 ")
-        print("Enter Shop?                            | enter 3 ")
-        print("Do nothing ?                           | enter 4 ")
+        print("Use Antidote to cure Poison?           | enter 3 ")        
+        print("Enter Shop?                            | enter 4 ")
+        print("Do nothing ?                           | enter 5 ")
 
 def print_shop():
     print("Welcome to the shop, please see our wares below: \n")
@@ -132,8 +175,8 @@ def choose_random_action_on_player(instance):
         action = random.choice(actions_to_player_options)
     return action
 
-actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Flask", "Lose Flask", "Lose Flask", "Lose Flask", "Nothing Happens", "Gain Flask"]   
-zero_flask_actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Nothing Happens", "Gain Flask"]   
+actions_to_player_options = ["Get Poisoned", "Get Poisoned", "Lose Currency", "Lose Currency", "Lose Currency", "Lose Currency", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Flask", "Lose Flask", "Lose Flask", "Lose Flask", "Nothing Happens", "Gain Flask"]   
+zero_flask_actions_to_player_options = ["Get Poisoned", "Get Poisoned", "Lose Currency", "Lose Currency", "Lose Currency", "Lose Currency", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Nothing Happens", "Gain Flask"]   
 
 def enter_shop(shop_instance, player_instance):
     print_shop()
@@ -160,10 +203,12 @@ def enter_shop(shop_instance, player_instance):
             if shop_instance.sell_item("flasks", player_instance) is False:
                 print_shop()
                 continue
+            print("You just sold a flask for 50.")
         elif chosen_item == 4:
             if shop_instance.sell_item("antidote", player_instance) is False:
                 print_shop()
-                continue                        
+                continue
+            print("You just sold an antidote for 75.")                        
         elif chosen_item == 5:
             print("Exiting shop...\nThe Shop Keeper is not happy.")
             return False
@@ -175,9 +220,11 @@ def action_by_player(input, player_instance, shop_instance):
         return player_instance.use_flask_hp()
     elif input == 2:
         return player_instance.use_flask_max_hp()
-    elif input == 3: 
+    elif input ==3:
+        return player_instance.use_antidote()
+    elif input == 4: 
         return enter_shop(shop_instance, player_instance)
-    elif input == 4:
+    elif input == 5:
         return player_instance.do_nothing()
 
 
@@ -192,6 +239,10 @@ def action_to_player(action, instance):
         instance.nothing_happens() 
     elif action == "Gain Flask":
         instance.gain_flask() 
+    elif action == "Lose Currency":
+        instance.lose_currency()
+    elif action == "Get Poisoned":
+        instance.get_poisoned()
 
 
 def set_up_player(name):    
@@ -240,6 +291,7 @@ shop = Shop()
 print("\nWelcome to the game, try and survive for as long as possible without your HP going below zero.... if you can \n")
 
 while player.current_hp > 0:
+    print("New Turn: ")
     print(player)
     if player.flasks < 1 and player.currency < 50: 
         print("\nRun out of flasks..! Only option is to do nothing....")
@@ -264,6 +316,7 @@ while player.current_hp > 0:
     action_to_player(action_on_player, player)
     player._turn_counter += 1 
     player.currency += 10
+    player.apply_poison()
 
 print("Congratulations {}, you have survived {} turns".format(player.name, player._turn_counter))
 
