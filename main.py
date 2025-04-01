@@ -1,7 +1,7 @@
 import random
 
 class Player:
-    def __init__(self, name, current_hp=100, max_hp=100, currency=25, antidote=0):
+    def __init__(self, name, max_hp=100, currency=25, current_hp=100, antidote=0):
         self.name = name 
         self.current_hp = current_hp
         self.max_hp = max_hp
@@ -78,8 +78,8 @@ class Player:
 class Shop:
     def __init__(self):
         self.inventory = {
-            "Flask" : {"Stock": 2, "Price": 50},
-            "Antidote" : {"Stock": 1, "Price": 75}
+            "flasks" : {"Stock": 2, "Price": 50},
+            "antidote" : {"Stock": 1, "Price": 75}
         }
     
     def __str__(self):
@@ -90,30 +90,35 @@ class Shop:
         price = self.inventory[item]["Price"]
         if player.currency > price and stock > 0: 
             self.inventory[item]["Stock"] -= 1
-            player.antidote += 1 
+            setattr(player, item, getattr(player, item) + 1) #used so method is dynamic
             player.currency -= self.inventory[item]["Price"]
-        elif player.currency > price and stock == 0:
-            print("The item is out of stock.")
-            return
+        elif player.currency >= price and stock == 0:
+            print("The item is out of stock. Lets try again.")
+            return False
         elif player.currency < price and stock > 0:
-            print("You have insufficient funds")
-            return
+            print("You have insufficient funds. Lets Try again.")
+            return False
         elif player.currency < price and stock == 0:
-            print("The Item is out of stock and you have insufficient funds.")
-            return
-
+            print("The Item is out of stock and you have insufficient funds. Lets try again.")
+            return False
+    """
     def buy_lucky_charm(self, player):
-        """
+        
         Add Charm that halves the max hp lost.
-        """
+        
         return
-
+    """
 def print_actions():
         print("\nWhat Would You Like To Do: ")
         print("Use Health Flask to Recover HP?        | enter 1 ")
         print("Use Health Flask to Increase Max HP?   | enter 2 ")
         print("Enter Shop?                            | enter 3 ")
         print("Do nothing ?                           | enter 4 ")
+
+def print_shop():
+    print("Welcome to the shop, please see our wares below: \n")
+    print(shop)
+    print("\nType \"1\" to buy flask | Type \"2\" to buy an antidote | Type \"3\" to exit without purchasing.")
 
 def choose_random_action_on_player(instance):
     if instance.flasks < 1: 
@@ -126,9 +131,7 @@ actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose M
 zero_flask_actions_to_player_options = ["Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Nothing Happens", "Gain Flask"]   
 
 def enter_shop(shop_instance, player_instance):
-    print("Welcome to the shop, please see our wares below: \n")
-    print(shop_instance)
-    print("\nType \"1\" to buy flask | Type \"2\" to buy an antidote | Type \"3\" to exit without purchasing.")
+    print_shop()
     while True:
         chosen_item = input("\nPlease type here: ")
         if not chosen_item.isdigit(): 
@@ -139,11 +142,15 @@ def enter_shop(shop_instance, player_instance):
             print("Please choose an integar between 1-3")
             continue
         if chosen_item == 1:
+            if shop_instance.buy_item("flasks", player_instance) is False:
+                print_shop()
+                continue
             print("You have just purchased a flask for 50 currency")
-            shop_instance.buy_item("Flask", player_instance)
         elif chosen_item == 2:
+            if shop_instance.buy_item("antidote", player_instance) is False:
+                print_shop()
+                continue
             print("You have just bought an antidote for 75 currency")
-            shop.buy_item("Antidote", player_instance)
         elif chosen_item == 3:
             print("Exiting shop...\nThe Shop Keeper is not happy.")
             return False
@@ -173,8 +180,52 @@ def action_to_player(action, instance):
     elif action == "Gain Flask":
         instance.gain_flask() 
 
+
+
+
+
+def set_up_player(name):    
+    while True:
+        customisation = input("Would you like to customise your starting stats? Answer \"yes\" or \"no\": ").lower()
+        if customisation not in ["yes", "no"]:
+            print("Please choose a valid answer \"yes\" or \"no\"")
+            continue 
+        if customisation == "no":
+            player = Player(name)
+            return player
+        if customisation == "yes":
+            print("Here are the rules:\n1. You can edit your starting Max HP and Currency.\n2. The Sum of the two must be equal to 125.\n3. Your Starting HP will match your chosen Max HP")
+            while True: 
+                starting_max_hp = input("Please choose your starting Max HP: ")
+                if not starting_max_hp.isdigit():
+                    print("Please choose an integar")
+                    continue
+                starting_max_hp = int(starting_max_hp)
+                if starting_max_hp not in range(1, 126):
+                    print("Must choose integer between 1-125.")
+                    continue 
+                if starting_max_hp == 125:
+                    player = Player(name, starting_max_hp, 0)
+                    return player
+                else:
+                    starting_curency = input("Please choose your starting currency: ")
+                    if not starting_curency.isdigit():
+                        print("Please choose an integar")
+                        continue
+                    starting_curency = int(starting_curency)
+                    if starting_curency not in range(1, 125):
+                        print("Must choose integer between 1-124 (as max HP cannot be zero)")
+                        continue
+                    if not starting_curency + starting_max_hp == 125:
+                        print("God your maths is terrible. The total of both must be equal to 125.")
+                        continue
+                    player = Player(player_name, starting_max_hp, starting_curency)
+                    return player
+
 player_name = str(input("Please Type in the name of your character: "))
-player = Player(player_name)
+player = set_up_player(player_name)
+
+
 shop = Shop()
 print("\nWelcome to the game, try and survive for as long as possible without your HP going below zero.... if you can \n")
 
@@ -201,7 +252,8 @@ while player.current_hp > 0:
         print(player)
     action_on_player = choose_random_action_on_player(player)
     action_to_player(action_on_player, player)
-    player._turn_counter += 1 #add so you get 10 currency per battle / turn
+    player._turn_counter += 1 
+    player.currency += 10
 
 print("Congratulations {}, you have survived {} turns".format(player.name, player._turn_counter))
 
