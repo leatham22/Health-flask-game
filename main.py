@@ -12,7 +12,7 @@ class Player:
 
 
     def __str__(self):
-        return "Player : {} | Number of flasks: {} | Current HP: {} | Max HP: {} | Currency: {} ".format(self.name, self.flasks, self.current_hp, self.max_hp, self.currency)
+        return "\nPlayer : {} | Number of flasks: {} | Current HP: {} | Max HP: {} | Currency: {} ".format(self.name, self.flasks, self.current_hp, self.max_hp, self.currency)
     
     def use_flask_hp(self):
         """
@@ -78,23 +78,29 @@ class Player:
 class Shop:
     def __init__(self):
         self.inventory = {
-            "Flasks" : {"Stock": 2, "Price": 50},
-            "antidote" : {"Stock": 1, "Price": 75}
+            "Flask" : {"Stock": 2, "Price": 50},
+            "Antidote" : {"Stock": 1, "Price": 75}
         }
     
     def __str__(self):
         return str(self.inventory) 
 
-
-    def buy_flask(self, player):
-        self.inventory["Flasks"]["Stock"] -= 1
-        player.flasks += 1
-        player.currency -= self.inventory["Flasks"]["Price"]
-
-    def buy_antidote(self, player):
-        self.inventory["antidote"]["Stock"] -= 1
-        player.antidote += 1 
-        player.currency -= self.inventory["antidote"]["Price"]
+    def buy_item(self, item, player):
+        stock = self.inventory[item]["Stock"]
+        price = self.inventory[item]["Price"]
+        if player.currency > price and stock > 0: 
+            self.inventory[item]["Stock"] -= 1
+            player.antidote += 1 
+            player.currency -= self.inventory[item]["Price"]
+        elif player.currency > price and stock == 0:
+            print("The item is out of stock.")
+            return
+        elif player.currency < price and stock > 0:
+            print("You have insufficient funds")
+            return
+        elif player.currency < price and stock == 0:
+            print("The Item is out of stock and you have insufficient funds.")
+            return
 
     def buy_lucky_charm(self, player):
         """
@@ -134,25 +140,25 @@ def enter_shop(shop_instance, player_instance):
             continue
         if chosen_item == 1:
             print("You have just purchased a flask for 50 currency")
-            shop_instance.buy_flask(player_instance)
+            shop_instance.buy_item("Flask", player_instance)
         elif chosen_item == 2:
             print("You have just bought an antidote for 75 currency")
-            shop.buy_antidote(player_instance)
-        elif chosen_item ==3:
+            shop.buy_item("Antidote", player_instance)
+        elif chosen_item == 3:
             print("Exiting shop...\nThe Shop Keeper is not happy.")
-            return
+            return False
         break
 
 
 def action_by_player(input, player_instance, shop_instance):
     if input == 1:
-        player_instance.use_flask_hp()
+        return player_instance.use_flask_hp()
     elif input == 2:
-        player_instance.use_flask_max_hp()
+        return player_instance.use_flask_max_hp()
     elif input == 3: 
-        enter_shop(shop_instance, player_instance)
+        return enter_shop(shop_instance, player_instance)
     elif input == 4:
-        player_instance.do_nothing()
+        return player_instance.do_nothing()
 
 
 def action_to_player(action, instance):
@@ -178,8 +184,8 @@ while player.current_hp > 0:
         print("\nRun out of flasks..! Only option is to do nothing....")
         chosen_action = 3
     else: 
-        print_actions()
         while True: 
+            print_actions()
             chosen_action = input("\nWhat would you like to choose? : ")
             if not chosen_action.isdigit(): 
                 print("Please choose an integar")
@@ -188,7 +194,8 @@ while player.current_hp > 0:
             if chosen_action not in range(1,5):
                 print("Please choose an integar between 1-4")
                 continue
-            action_by_player(chosen_action, player, shop)
+            if action_by_player(chosen_action, player, shop) is False:
+                continue
             break
     if chosen_action in [1,2,4]:
         print(player)
