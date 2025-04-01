@@ -1,5 +1,19 @@
 import random
 
+def is_digit_check(input):
+    if not input.isdigit(): 
+        print("Please choose an integer")
+        return False
+    elif input.isdigit():
+        return 
+    
+def check_in_range(input, x):
+    if input not in range(1, x):
+        print("Must choose an integer between 1-{}.".format(x-1))
+        return False
+    else:
+        return     
+
 class Player:
     def __init__(self, name, max_hp=100, currency=25, current_hp=100, antidote=0, poisoned=0):
         self.name = name 
@@ -170,7 +184,7 @@ def print_shop():
 
 def choose_random_action_on_player(instance):
     if instance.flasks < 1: 
-        action= random.choice(zero_flask_actions_to_player_options)
+        action = random.choice(zero_flask_actions_to_player_options)
     else: 
         action = random.choice(actions_to_player_options)
     return action
@@ -258,12 +272,10 @@ def set_up_player(name):
             print("Here are the rules:\n1. You can edit your starting Max HP and Currency.\n2. The Sum of the two must be equal to 125.\n3. Your Starting HP will match your chosen Max HP")
             while True: 
                 starting_max_hp = input("Please choose your starting Max HP: ")
-                if not starting_max_hp.isdigit():
-                    print("Please choose an integar")
+                if is_digit_check(starting_max_hp)is False:
                     continue
                 starting_max_hp = int(starting_max_hp)
-                if starting_max_hp not in range(1, 126):
-                    print("Must choose integer between 1-125.")
+                if check_in_range(starting_max_hp, 126) is False:
                     continue 
                 if starting_max_hp == 125:
                     player = Player(name, starting_max_hp, 0)
@@ -274,8 +286,7 @@ def set_up_player(name):
                         print("Please choose an integar")
                         continue
                     starting_curency = int(starting_curency)
-                    if starting_curency not in range(1, 125):
-                        print("Must choose integer between 1-124 (as max HP cannot be zero)")
+                    if check_in_range(starting_curency, 125) is False:
                         continue
                     if not starting_curency + starting_max_hp == 125:
                         print("God your maths is terrible. The total of both must be equal to 125.")
@@ -285,6 +296,7 @@ def set_up_player(name):
 
 player_name = str(input("Please Type in the name of your character: "))
 player = set_up_player(player_name)
+
 
 
 shop = Shop()
@@ -300,8 +312,7 @@ while player.current_hp > 0:
         while True: 
             print_actions()
             chosen_action = input("\nWhat would you like to choose? : ")
-            if not chosen_action.isdigit(): 
-                print("Please choose an integar")
+            if is_digit_check(chosen_action) is False:
                 continue
             chosen_action= int(chosen_action)
             if chosen_action not in range(1,5):
