@@ -88,7 +88,7 @@ class Shop:
     def buy_item(self, item, player):
         stock = self.inventory[item]["Stock"]
         price = self.inventory[item]["Price"]
-        if player.currency > price and stock > 0: 
+        if player.currency >= price and stock > 0: 
             self.inventory[item]["Stock"] -= 1
             setattr(player, item, getattr(player, item) + 1) #used so method is dynamic
             player.currency -= self.inventory[item]["Price"]
@@ -101,13 +101,18 @@ class Shop:
         elif player.currency < price and stock == 0:
             print("The Item is out of stock and you have insufficient funds. Lets try again.")
             return False
-    """
-    def buy_lucky_charm(self, player):
-        
-        Add Charm that halves the max hp lost.
-        
-        return
-    """
+
+    def sell_item(self, item, player):
+        player_stock = player.flasks
+        price = self.inventory[item]["Price"]
+        if player_stock > 0:
+            setattr(player, item, getattr(player, item) -1)
+            player.currency += price
+        elif player_stock == 0:
+            print("You have no {}'s to sell".format(item))
+            return False
+
+
 def print_actions():
         print("\nWhat Would You Like To Do: ")
         print("Use Health Flask to Recover HP?        | enter 1 ")
@@ -118,7 +123,7 @@ def print_actions():
 def print_shop():
     print("Welcome to the shop, please see our wares below: \n")
     print(shop)
-    print("\nType \"1\" to buy flask | Type \"2\" to buy an antidote | Type \"3\" to exit without purchasing.")
+    print("\nType \"1\" to buy flask \nType \"2\" to buy an antidote \nType \"3\" to sell a flask \nType \"4\" to sell an antidote\nType \"5\" to exit without transacting.")
 
 def choose_random_action_on_player(instance):
     if instance.flasks < 1: 
@@ -138,8 +143,8 @@ def enter_shop(shop_instance, player_instance):
             print("Please choose an integar")
             continue
         chosen_item = int(chosen_item)
-        if chosen_item not in range(1,4):
-            print("Please choose an integar between 1-3")
+        if chosen_item not in range(1,6):
+            print("Please choose an integar between 1-5")
             continue
         if chosen_item == 1:
             if shop_instance.buy_item("flasks", player_instance) is False:
@@ -152,6 +157,14 @@ def enter_shop(shop_instance, player_instance):
                 continue
             print("You have just bought an antidote for 75 currency")
         elif chosen_item == 3:
+            if shop_instance.sell_item("flasks", player_instance) is False:
+                print_shop()
+                continue
+        elif chosen_item == 4:
+            if shop_instance.sell_item("antidote", player_instance) is False:
+                print_shop()
+                continue                        
+        elif chosen_item == 5:
             print("Exiting shop...\nThe Shop Keeper is not happy.")
             return False
         break
@@ -179,9 +192,6 @@ def action_to_player(action, instance):
         instance.nothing_happens() 
     elif action == "Gain Flask":
         instance.gain_flask() 
-
-
-
 
 
 def set_up_player(name):    
