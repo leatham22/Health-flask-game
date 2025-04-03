@@ -65,6 +65,23 @@ class TestPlayer(unittest.TestCase):
         player.lose_flask()
         self.assertEqual(player.flasks, initial_flasks - 1)
 
+    def test_lose_flask_no_flasks_with_currency(self):
+        player = Player("Test Hero", flasks=0, currency=50)
+        initial_currency = player.currency
+        player.lose_flask()
+        self.assertEqual(player.flasks, 0)
+        self.assertTrue(player.currency < initial_currency)
+
+    def test_lose_flask_no_flask_no_currency(self):
+        player = Player("Test Hero", flasks=0, currency=5, current_hp=100, max_hp=100)
+        initial_hp = player.current_hp
+        initial_currency = player.currency
+        initial_flask = player.flasks
+        player.lose_flask()
+        self.assertTrue(initial_hp > player.current_hp)
+        self.assertEqual(initial_currency, player.currency)
+        self.assertEqual(initial_flask, player.flasks)
+
 
     def test_lose_hp(self):
         player = Player("Test Hero", current_hp = 100)

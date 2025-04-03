@@ -112,8 +112,18 @@ class Player:
         """
         ADD FUN PRINT STATEMENTS 
         """ 
-        print("You lost a flask on your jouney.")      
-        self.flasks -= 1
+        if self.flasks > 0:
+            print("You were cornered on the battlefield and one of your flasks were stolen!! \nThieving Bastards...")      
+            self.flasks -= 1
+        elif self.flasks == 0 and self.currency > 10:
+            self.currency -= random.randint(10,25)
+            self.currency = max(self.currency, 0)
+            print("You were cornered on the battlefield and they demanded one of your flasks.\nYou have no flasks so they've stolen currency instead..")
+        elif self.flasks == 0 and self.currency <= 10:
+            lost_hp = random.randint(5,20)
+            self.current_hp -= lost_hp
+            print("Some thieves on the battlefield came to rob you. You had nothing to provide so they beat you up. \nLose {} HP.".format(lost_hp))
+
 
     def nothing_happens(self):
         """
@@ -192,15 +202,10 @@ def print_shop():
     print(shop)
     print("\nType \"1\" to buy flask \nType \"2\" to buy an antidote \nType \"3\" to sell a flask \nType \"4\" to sell an antidote\nType \"5\" to exit without transacting.")
 
-def choose_random_action_on_player(instance):
-    if instance.flasks < 1: 
-        action = random.choice(zero_flask_actions_to_player_options)
-    else: 
-        action = random.choice(actions_to_player_options)
-    return action
+
 
 actions_to_player_options = ["Get Poisoned", "Get Poisoned", "Lose Currency", "Lose Currency", "Lose Currency", "Lose Currency", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Flask", "Lose Flask", "Lose Flask", "Lose Flask", "Nothing Happens", "Gain Flask"]   
-zero_flask_actions_to_player_options = ["Get Poisoned", "Get Poisoned", "Lose Currency", "Lose Currency", "Lose Currency", "Lose Currency", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose HP", "Lose Max HP", "Lose HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Lose Max HP", "Nothing Happens", "Gain Flask"]   
+
 
 def enter_shop(shop_instance, player_instance):
     print_shop()
@@ -252,7 +257,8 @@ def action_by_player(input, player_instance, shop_instance):
         return player_instance.do_nothing()
 
 
-def action_to_player(action, instance):
+def action_to_player(instance):
+    action = random.choice(actions_to_player_options)
     if action == "Lose HP":
         instance.lose_hp()
     elif action == "Lose Max HP":
@@ -311,7 +317,7 @@ if __name__ == '__main__':
 
     shop = Shop()
     print("\nWelcome to the game, try and survive for as long as possible without your HP going below zero.... if you can \n")
-
+    
     while player.current_hp > 0:
         print("New Turn: ")
         print(player)
@@ -329,8 +335,7 @@ if __name__ == '__main__':
             break
         if chosen_action in [1,2,3,4]:
             print(player)
-        action_on_player = choose_random_action_on_player(player)
-        action_to_player(action_on_player, player)
+        action_to_player(player)
         player._turn_counter += 1 
         player.currency += 10
         player.apply_poison()
