@@ -1,4 +1,5 @@
 import random
+import time 
 
 def is_digit_check(input):
     if not input.isdigit(): 
@@ -184,6 +185,7 @@ class Shop:
         if player_stock > 0:
             setattr(player, item, getattr(player, item) -1)
             player.currency += price
+            self.inventory[item]["Stock"] += 1
         elif player_stock == 0:
             print("You have no {}'s to sell".format(item))
             return False
@@ -198,9 +200,9 @@ def print_actions():
         print("Do nothing ?                           | enter 5 ")
 
 def print_shop():
-    print("Welcome to the shop, please see our wares below: \n")
+    print("Please see our current wares below: \n")
     print(shop)
-    print("\nType \"1\" to buy flask \nType \"2\" to buy an antidote \nType \"3\" to sell a flask \nType \"4\" to sell an antidote\nType \"5\" to exit without transacting.")
+    print("\nType \"1\" to buy flask \nType \"2\" to buy an antidote \nType \"3\" to sell a flask \nType \"4\" to sell an antidote\nType \"5\" to exit shop.")
 
 
 
@@ -208,8 +210,11 @@ actions_to_player_options = ["Get Poisoned", "Get Poisoned", "Lose Currency", "L
 
 
 def enter_shop(shop_instance, player_instance):
-    print_shop()
+    print("Welcome to the Shop.")
     while True:
+        print("Your current currency is: {}".format(player.currency))
+        print("You own the following items. Flasks: {}  |  antidotes: {}\n".format(player.flasks, player.antidote))
+        print_shop()
         chosen_item = input("\nPlease type here: ")
         if not chosen_item.isdigit(): 
             print("Please choose an integar")
@@ -220,26 +225,30 @@ def enter_shop(shop_instance, player_instance):
             continue
         if chosen_item == 1:
             if shop_instance.buy_item("flasks", player_instance) is False:
-                print_shop()
                 continue
-            print("You have just purchased a flask for 50 currency")
+            print("You have just purchased a flask for 50 currency. Returning to shop.....\n")
+            time.sleep(1)
+            continue
         elif chosen_item == 2:
             if shop_instance.buy_item("antidote", player_instance) is False:
-                print_shop()
                 continue
-            print("You have just bought an antidote for 75 currency")
+            print("You have just bought an antidote for 75 currency. Returning to shop.....\n")
+            time.sleep(1)
+            continue
         elif chosen_item == 3:
             if shop_instance.sell_item("flasks", player_instance) is False:
-                print_shop()
                 continue
-            print("You just sold a flask for 50.")
+            print("You just sold a flask for 50. Returning to shop.....\n")
+            time.sleep(1)
+            continue
         elif chosen_item == 4:
             if shop_instance.sell_item("antidote", player_instance) is False:
-                print_shop()
                 continue
-            print("You just sold an antidote for 75.")                        
+            print("You just sold an antidote for 75. Returning to shop.....\n")
+            time.sleep(1)         
+            continue           
         elif chosen_item == 5:
-            print("Exiting shop...\nThe Shop Keeper is not happy.")
+            print("Exiting shop...\n")
             return False
         break
 
@@ -317,7 +326,7 @@ if __name__ == '__main__':
 
     shop = Shop()
     print("\nWelcome to the game, try and survive for as long as possible without your HP going below zero.... if you can \n")
-    
+
     while player.current_hp > 0:
         print("New Turn: ")
         print(player)
