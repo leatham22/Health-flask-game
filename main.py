@@ -15,12 +15,12 @@ def check_in_range(input, x):
         return     
 
 class Player:
-    def __init__(self, name, max_hp=100, currency=25, current_hp=100, antidote=0, poisoned=0):
+    def __init__(self, name, max_hp=100, flasks = 3, currency=25, current_hp=100, antidote=0, poisoned=0):
         self.name = name 
         self.current_hp = current_hp
         self.max_hp = max_hp
         self._turn_counter = 0
-        self.flasks = 3
+        self.flasks = flasks
         self.currency = currency
         self.antidote = antidote
         self.poisoned = poisoned
@@ -36,10 +36,11 @@ class Player:
             self.poisoned -= 1
         else:
             return
+        
     def get_poisoned(self):
         if self.poisoned == 0:
             print("Oh no you are poisoned, someone must have used a poisonous blade..\nYou will lose 10HP for the next 5 turns")
-            self.poisoned += 5
+            self.poisoned = 5
         elif self.poisoned > 0:
             self.poisoned += 5
             print("These bastards. You have been poisoned again. You will lose 10HP for the next {} turns.".format(self.poisoned))
@@ -61,20 +62,29 @@ class Player:
         """
         ADD FUN PRINT STATEMENTS 
         """
-        flask_recover_hp = random.randint(15, 40)
-        print("\nHealth flask used to recover HP, you have recovered {} HP".format(flask_recover_hp))
-        self.current_hp += flask_recover_hp
-        self.current_hp = min(self.current_hp, self.max_hp)
-        self.flasks -= 1
-    
+        if self.flasks > 0:
+            flask_recover_hp = random.randint(15, 40)
+            print("\nHealth flask used to recover HP, you have recovered {} HP".format(flask_recover_hp))
+            self.current_hp += flask_recover_hp
+            self.current_hp = min(self.current_hp, self.max_hp)
+            self.flasks -= 1
+        elif self.flasks == 0:
+            print("You don't have any flasks...")
+            return False
+
+
     def use_flask_max_hp(self):
         """
         ADD FUN PRINT STATEMENTS 
         """
-        flask_add_max_hp = random.randint(5, 15)
-        print("\nHealth Flask used to increase Max HP. Max HP increased by {}".format(flask_add_max_hp))
-        self.max_hp += flask_add_max_hp
-        self.flasks -= 1
+        if self.flasks > 0:
+            flask_add_max_hp = random.randint(5, 15)
+            print("\nHealth Flask used to increase Max HP. Max HP increased by {}".format(flask_add_max_hp))
+            self.max_hp += flask_add_max_hp
+            self.flasks -= 1
+        elif self.flasks == 0:
+            print("You don't have any flasks...")
+            return False
     
     def do_nothing(self):
         print("\nYou have chosen to do nothing this turn")
@@ -134,7 +144,7 @@ class Player:
 class Shop:
     def __init__(self):
         self.inventory = {
-            "flasks" : {"Stock": 2, "Price": 50},
+            "flasks" : {"Stock": 3, "Price": 50},
             "antidote" : {"Stock": 1, "Price": 75}
         }
     
@@ -291,44 +301,40 @@ def set_up_player(name):
                     if not starting_curency + starting_max_hp == 125:
                         print("God your maths is terrible. The total of both must be equal to 125.")
                         continue
-                    player = Player(player_name, starting_max_hp, starting_curency)
+                    player = Player(name, max_hp=starting_max_hp, currency=starting_curency, current_hp=starting_max_hp)
                     return player
 
-player_name = str(input("Please Type in the name of your character: "))
-player = set_up_player(player_name)
+if __name__ == '__main__':
 
+    player_name = str(input("Please Type in the name of your character: "))
+    player = set_up_player(player_name)
 
+    shop = Shop()
+    print("\nWelcome to the game, try and survive for as long as possible without your HP going below zero.... if you can \n")
 
-shop = Shop()
-print("\nWelcome to the game, try and survive for as long as possible without your HP going below zero.... if you can \n")
-
-while player.current_hp > 0:
-    print("New Turn: ")
-    print(player)
-    if player.flasks < 1 and player.currency < 50: 
-        print("\nRun out of flasks..! Only option is to do nothing....")
-        chosen_action = 3
-    else: 
+    while player.current_hp > 0:
+        print("New Turn: ")
+        print(player)
         while True: 
             print_actions()
             chosen_action = input("\nWhat would you like to choose? : ")
             if is_digit_check(chosen_action) is False:
                 continue
             chosen_action= int(chosen_action)
-            if chosen_action not in range(1,5):
-                print("Please choose an integar between 1-4")
+            if chosen_action not in range(1,6):
+                print("Please choose an integar between 1-5")
                 continue
             if action_by_player(chosen_action, player, shop) is False:
                 continue
             break
-    if chosen_action in [1,2,4]:
-        print(player)
-    action_on_player = choose_random_action_on_player(player)
-    action_to_player(action_on_player, player)
-    player._turn_counter += 1 
-    player.currency += 10
-    player.apply_poison()
+        if chosen_action in [1,2,3,4]:
+            print(player)
+        action_on_player = choose_random_action_on_player(player)
+        action_to_player(action_on_player, player)
+        player._turn_counter += 1 
+        player.currency += 10
+        player.apply_poison()
 
-print("Congratulations {}, you have survived {} turns".format(player.name, player._turn_counter))
+    print("Congratulations {}, you have survived {} turns".format(player.name, player._turn_counter))
 
 
