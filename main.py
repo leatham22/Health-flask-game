@@ -38,6 +38,6 @@ if __name__ == '__main__':
         player.apply_poison()
 
     print("Congratulations {}, you have survived {} turns".format(player.name, player._turn_counter))
-    with SaveHighScore("highscore.json", player) as highscores:
+    with SaveHighScore("highscores.json", player) as highscores:
         print(highscores)
 
