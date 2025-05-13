@@ -28,6 +28,6 @@ This was my first attempt at making a game, motivated by my goal of working in t
 - Use of functions like `getattr()` and `setattr()` for dynamic object attribute access
 
 ## How to Run
-Basic instructions like:
+
 ```bash
 python3 main.py
